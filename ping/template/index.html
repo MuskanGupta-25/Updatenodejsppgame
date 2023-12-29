@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #111;
+      color: white;
+    }
+
+    #paddle1, #paddle2 {
+      width: 10px;
+      height: 90px;
+      background-color: white;
+      position: absolute;
+    }
+
+    #paddle1 {
+      left: 0;
+    }
+
+    #paddle2 {
+      right: 0;
+    }
+
+    #ball {
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+    }
+  </style>
+  <title>Ping Pong Game</title>
+</head>
+<body>
+  <div id="paddle1"></div>
+  <div id="paddle2"></div>
+  <div id="ball"></div>
+  <div id="scoreboard">Player 1: 0 | Player 2: 0</div>
+
+  <script>
+    const paddle1 = document.getElementById("paddle1");
+    const paddle2 = document.getElementById("paddle2");
+    const ball = document.getElementById("ball");
+    const scoreboard = document.getElementById("scoreboard");
+
+    const paddleHeight = 60;
+    let paddle1Y = (window.innerHeight - paddleHeight) / 2;
+    let paddle2Y = (window.innerHeight - paddleHeight) / 2;
+    let ballX = window.innerWidth / 2;
+    let ballY = window.innerHeight / 2;
+    let ballSpeedX = 1;
+    let ballSpeedY = 1;
+    let player1Score = 0;
+    let player2Score = 0;
+
+    function draw() {
+      paddle1.style.top = `${paddle1Y}px`;
+      paddle2.style.top = `${paddle2Y}px`;
+      ball.style.left = `${ballX}px`;
+      ball.style.top = `${ballY}px`;
+      scoreboard.textContent = `Player: ${player1Score} | Computer: ${player2Score}`;
+
+      // Move the ball
+      ballX += ballSpeedX;
+      ballY += ballSpeedY;
+
+      // Bounce off the top and bottom walls
+      if (ballY > window.innerHeight || ballY < 0) {
+        ballSpeedY = -ballSpeedY;
+      }
+
+      // Check if the ball hits the paddles
+      if (
+        (ballX < 10 && ballY > paddle1Y && ballY < paddle1Y + paddleHeight) ||
+        (ballX > window.innerWidth - 30 && ballY > paddle2Y && ballY < paddle2Y + paddleHeight)
+      ) {
+        ballSpeedX = -ballSpeedX;
+      }
+
+      // Reset the ball if it goes beyond paddles
+      if (ballX < 0) {
+        player2Score++;
+        resetBall();
+      } else if (ballX > window.innerWidth) {
+        player1Score++;
+        resetBall();
+      }
+
+      // Computer-controlled paddle
+      const targetPaddle2Y = ballY - paddleHeight / 2;
+      paddle2Y += (targetPaddle2Y - paddle2Y) * 0.1;
+    }
+
+    function resetBall() {
+      ballX = window.innerWidth / 2;
+      ballY = window.innerHeight / 2;
+      ballSpeedX = -ballSpeedX;
+    }
+
+    function updateMousePos(event) {
+      const mouseY = event.clientY - paddleHeight / 2;
+      paddle1Y = mouseY;
+    }
+
+    function gameLoop() {
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    document.addEventListener("mousemove", updateMousePos);
+
+    gameLoop();
+  </script>
+</body>
+</html>
